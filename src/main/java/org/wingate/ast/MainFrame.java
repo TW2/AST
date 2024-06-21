@@ -16,18 +16,28 @@
  */
 package org.wingate.ast;
 
+import java.util.Iterator;
 import java.util.Locale;
 import javax.swing.DefaultComboBoxModel;
+import javax.swing.table.DefaultTableColumnModel;
+import javax.swing.table.TableColumn;
 import net.suuft.libretranslate.Language;
+import org.wingate.ast.sub.Sentence;
+import org.wingate.ast.util.AssTableModel;
+import org.wingate.ast.util.AssTableRenderer;
 
 /**
  *
  * @author util2
  */
 public class MainFrame extends javax.swing.JFrame {
+    
+    private static final int assMaxTableSize = 1000;
 
     private final DefaultComboBoxModel modelFrom;
     private final DefaultComboBoxModel modelTo;
+    private final AssTableModel assModel;
+    private final AssTableRenderer assRenderer;
     
     /**
      * Creates new form MainFrame
@@ -47,6 +57,17 @@ public class MainFrame extends javax.swing.JFrame {
         
         cbFrom.setSelectedItem(Language.JAPANESE);        
         cbTo.setSelectedItem(getSystemLanguage());
+        
+        assModel = new AssTableModel();
+        assRenderer = new AssTableRenderer();
+        
+        tableAss.setModel(assModel);
+        tableAss.setDefaultRenderer(Integer.class, assRenderer);
+        tableAss.setDefaultRenderer(String.class, assRenderer);
+        tableAss.setDefaultRenderer(Sentence.class, assRenderer);     
+        
+        resetColumnsWidth();
+        tableAss.updateUI();
     }
     
     private Language getSystemLanguage(){
@@ -62,6 +83,23 @@ public class MainFrame extends javax.swing.JFrame {
         
         return lng;
     }
+    
+    private void resetColumnsWidth(){
+        int max = assMaxTableSize, size;
+        TableColumn col;
+        for(int i=0; i<tableAss.getColumnCount(); i++){
+            switch(i){
+                case 0 -> { size = 40; }
+                case 1, 2 -> { size = 90; }
+                case 3 -> { size = max; }
+                default -> { size = 0; }
+            }
+            col = tableAss.getColumnModel().getColumn(i);
+            col.setPreferredWidth(size);
+            max -= size;
+        }
+        
+    }
 
     /**
      * This method is called from within the constructor to initialize the form.
@@ -72,10 +110,12 @@ public class MainFrame extends javax.swing.JFrame {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
+        fcOpen = new javax.swing.JFileChooser();
+        fcSave = new javax.swing.JFileChooser();
         jTabbedPane1 = new javax.swing.JTabbedPane();
         panTranslate = new javax.swing.JPanel();
         jScrollPane2 = new javax.swing.JScrollPane();
-        jTable2 = new javax.swing.JTable();
+        tableAss = new javax.swing.JTable();
         jPanel1 = new javax.swing.JPanel();
         jLabel1 = new javax.swing.JLabel();
         jLabel2 = new javax.swing.JLabel();
@@ -91,10 +131,15 @@ public class MainFrame extends javax.swing.JFrame {
         jButton2 = new javax.swing.JButton();
         jTextField1 = new javax.swing.JTextField();
         jButton3 = new javax.swing.JButton();
+        jMenuBar1 = new javax.swing.JMenuBar();
+        jMenu1 = new javax.swing.JMenu();
+        jMenuItem1 = new javax.swing.JMenuItem();
+        jMenuItem2 = new javax.swing.JMenuItem();
+        jMenuItem3 = new javax.swing.JMenuItem();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
-        jTable2.setModel(new javax.swing.table.DefaultTableModel(
+        tableAss.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
                 {null, null, null, null},
                 {null, null, null, null},
@@ -105,7 +150,7 @@ public class MainFrame extends javax.swing.JFrame {
                 "Title 1", "Title 2", "Title 3", "Title 4"
             }
         ));
-        jScrollPane2.setViewportView(jTable2);
+        jScrollPane2.setViewportView(tableAss);
 
         jPanel1.setLayout(new java.awt.GridLayout(2, 2, 2, 2));
 
@@ -153,7 +198,7 @@ public class MainFrame extends javax.swing.JFrame {
             .addComponent(jPanel2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
             .addComponent(jPanel3, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
             .addComponent(jTextField1)
-            .addComponent(jScrollPane2, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, 978, Short.MAX_VALUE)
+            .addComponent(jScrollPane2, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, 822, Short.MAX_VALUE)
             .addComponent(jButton3, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
         );
         panTranslateLayout.setVerticalGroup(
@@ -169,12 +214,27 @@ public class MainFrame extends javax.swing.JFrame {
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jButton3)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 439, Short.MAX_VALUE))
+                .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 326, Short.MAX_VALUE))
         );
 
         jTabbedPane1.addTab("Translate", panTranslate);
 
         getContentPane().add(jTabbedPane1, java.awt.BorderLayout.CENTER);
+
+        jMenu1.setText("File");
+
+        jMenuItem1.setText("Open subtitles...");
+        jMenu1.add(jMenuItem1);
+
+        jMenuItem2.setText("Save subtitles as...");
+        jMenu1.add(jMenuItem2);
+
+        jMenuItem3.setText("Save subtitles");
+        jMenu1.add(jMenuItem3);
+
+        jMenuBar1.add(jMenu1);
+
+        setJMenuBar(jMenuBar1);
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
@@ -217,11 +277,18 @@ public class MainFrame extends javax.swing.JFrame {
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JComboBox<String> cbFrom;
     private javax.swing.JComboBox<String> cbTo;
+    private javax.swing.JFileChooser fcOpen;
+    private javax.swing.JFileChooser fcSave;
     private javax.swing.JButton jButton1;
     private javax.swing.JButton jButton2;
     private javax.swing.JButton jButton3;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
+    private javax.swing.JMenu jMenu1;
+    private javax.swing.JMenuBar jMenuBar1;
+    private javax.swing.JMenuItem jMenuItem1;
+    private javax.swing.JMenuItem jMenuItem2;
+    private javax.swing.JMenuItem jMenuItem3;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel2;
     private javax.swing.JPanel jPanel3;
@@ -229,10 +296,10 @@ public class MainFrame extends javax.swing.JFrame {
     private javax.swing.JScrollPane jScrollPane3;
     private javax.swing.JScrollPane jScrollPane4;
     private javax.swing.JTabbedPane jTabbedPane1;
-    private javax.swing.JTable jTable2;
     private javax.swing.JTextField jTextField1;
     private javax.swing.JTextPane jTextPane1;
     private javax.swing.JTextPane jTextPane2;
     private javax.swing.JPanel panTranslate;
+    private javax.swing.JTable tableAss;
     // End of variables declaration//GEN-END:variables
 }

@@ -134,14 +134,21 @@ public class Time {
         int cs = (int)(ms - 3600000 * hour - 60000 * min - 1000 * sec) / 10;
         
         return String.format("%d:%d:%d.%d", hour, min, sec, cs);
-    }
-    
+    }    
     
     public String getStartString(){
         return getTimeString(msStart);
     }
     
+    public void setStartString(String str){
+        msStart = parseASS(str);
+    }
+    
     public String getEndString(){
         return getTimeString(msStop);
-   }
+    }
+    
+    public void setEndString(String str){
+        msStop = parseASS(str);
+    }
 }

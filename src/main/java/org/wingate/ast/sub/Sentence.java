@@ -73,5 +73,10 @@ public class Sentence {
         }
         return list;
     }
+
+    @Override
+    public String toString() {
+        return text;
+    }
     
 }
