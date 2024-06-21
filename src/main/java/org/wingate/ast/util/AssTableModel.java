@@ -16,7 +16,6 @@
  */
 package org.wingate.ast.util;
 
-import java.util.Vector;
 import org.wingate.ast.sub.ASS;
 import org.wingate.ast.sub.Event;
 import org.wingate.ast.sub.Sentence;
@@ -57,6 +56,11 @@ public class AssTableModel extends javax.swing.table.DefaultTableModel {
             case 3 -> { return "Text"; }
         }
         return "Unknown";
+    }
+
+    @Override
+    public int getRowCount() {
+        return ass == null || ass.getEvents().isEmpty() ? 0 : ass.getEvents().size();
     }
 
     @Override

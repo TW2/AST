@@ -19,7 +19,7 @@ package org.wingate.ast.util;
 import java.awt.Color;
 import java.awt.Component;
 import javax.swing.JTable;
-import org.wingate.ast.sub.Event;
+import org.wingate.ast.sub.Sentence;
 
 /**
  *
@@ -33,20 +33,23 @@ public class AssTableRenderer extends javax.swing.table.DefaultTableCellRenderer
 
     @Override
     public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
+        super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
         
-        if(value instanceof Event){
+        if(value instanceof Integer || value instanceof String || value instanceof Sentence){
+            
+            setBackground(row % 2 == 0 ? new Color(242,242,242) : Color.white);
+            
+            if(column == 0){
+                setBackground(Color.magenta.darker());
+                setForeground(Color.white);
+            }
+            
             switch(column){
                 case 1 -> { setForeground(Color.green.darker()); }
                 case 2 -> { setForeground(Color.red); }
                 case 3 -> { setForeground(Color.blue.darker()); }
             }
             
-            setBackground(row % 2 == 0 ? Color.lightGray : Color.white);
-            
-            if(column == 0){
-                setBackground(Color.magenta.darker());
-                setForeground(Color.white);
-            }
         }
         
         return this;

@@ -23,6 +23,7 @@ import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
 import javax.swing.table.TableColumn;
 import net.suuft.libretranslate.Language;
+import net.suuft.libretranslate.Translator;
 import org.wingate.ast.sub.ASS;
 import org.wingate.ast.sub.Sentence;
 import org.wingate.ast.util.AssFileFilter;
@@ -35,6 +36,7 @@ import org.wingate.ast.util.AssTableRenderer;
  */
 public class MainFrame extends javax.swing.JFrame {
     
+    private static final String URL = "http://127.0.0.1:5000/translate";
     private static final int ASS_MAX_TABLE_SIZE = 1000;
     private File selectedFile = null;
 
@@ -94,7 +96,7 @@ public class MainFrame extends javax.swing.JFrame {
         for(int i=0; i<tableAss.getColumnCount(); i++){
             switch(i){
                 case 0 -> { size = 40; }
-                case 1, 2 -> { size = 90; }
+                case 1, 2 -> { size = 80; }
                 case 3 -> { size = max; }
                 default -> { size = 0; }
             }
@@ -127,14 +129,14 @@ public class MainFrame extends javax.swing.JFrame {
         cbTo = new javax.swing.JComboBox<>();
         jPanel2 = new javax.swing.JPanel();
         jScrollPane3 = new javax.swing.JScrollPane();
-        jTextPane1 = new javax.swing.JTextPane();
+        tpFrom = new javax.swing.JTextPane();
         jScrollPane4 = new javax.swing.JScrollPane();
-        jTextPane2 = new javax.swing.JTextPane();
+        tpTo = new javax.swing.JTextPane();
         jPanel3 = new javax.swing.JPanel();
-        jButton1 = new javax.swing.JButton();
-        jButton2 = new javax.swing.JButton();
-        jTextField1 = new javax.swing.JTextField();
-        jButton3 = new javax.swing.JButton();
+        btnGetSt = new javax.swing.JButton();
+        btnSetSt = new javax.swing.JButton();
+        btnTranslate = new javax.swing.JButton();
+        jProgressBar1 = new javax.swing.JProgressBar();
         jMenuBar1 = new javax.swing.JMenuBar();
         mnuFile = new javax.swing.JMenu();
         mnuFileOpen = new javax.swing.JMenuItem();
@@ -174,25 +176,38 @@ public class MainFrame extends javax.swing.JFrame {
 
         jPanel2.setLayout(new java.awt.GridLayout(1, 2, 2, 2));
 
-        jScrollPane3.setViewportView(jTextPane1);
+        jScrollPane3.setViewportView(tpFrom);
 
         jPanel2.add(jScrollPane3);
 
-        jScrollPane4.setViewportView(jTextPane2);
+        jScrollPane4.setViewportView(tpTo);
 
         jPanel2.add(jScrollPane4);
 
         jPanel3.setLayout(new java.awt.GridLayout(1, 2, 2, 2));
 
-        jButton1.setText("Get sentence");
-        jPanel3.add(jButton1);
+        btnGetSt.setText("Get sentence");
+        btnGetSt.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnGetStActionPerformed(evt);
+            }
+        });
+        jPanel3.add(btnGetSt);
 
-        jButton2.setText("Set sentence");
-        jPanel3.add(jButton2);
+        btnSetSt.setText("Set sentence");
+        btnSetSt.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnSetStActionPerformed(evt);
+            }
+        });
+        jPanel3.add(btnSetSt);
 
-        jTextField1.setHorizontalAlignment(javax.swing.JTextField.CENTER);
-
-        jButton3.setText("Auto translate");
+        btnTranslate.setText("Auto translate");
+        btnTranslate.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnTranslateActionPerformed(evt);
+            }
+        });
 
         javax.swing.GroupLayout panTranslateLayout = new javax.swing.GroupLayout(panTranslate);
         panTranslate.setLayout(panTranslateLayout);
@@ -201,9 +216,9 @@ public class MainFrame extends javax.swing.JFrame {
             .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
             .addComponent(jPanel2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
             .addComponent(jPanel3, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-            .addComponent(jTextField1)
             .addComponent(jScrollPane2, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, 822, Short.MAX_VALUE)
-            .addComponent(jButton3, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+            .addComponent(btnTranslate, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+            .addComponent(jProgressBar1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
         );
         panTranslateLayout.setVerticalGroup(
             panTranslateLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -214,11 +229,11 @@ public class MainFrame extends javax.swing.JFrame {
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jPanel3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jTextField1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addComponent(btnTranslate)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jButton3)
+                .addComponent(jProgressBar1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 326, Short.MAX_VALUE))
+                .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 344, Short.MAX_VALUE))
         );
 
         jTabbedPane1.addTab("Translate", panTranslate);
@@ -312,6 +327,48 @@ public class MainFrame extends javax.swing.JFrame {
         ass.write(selectedFile.getPath());
     }//GEN-LAST:event_mnuFileSaveActionPerformed
 
+    private void btnGetStActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnGetStActionPerformed
+        // Get text from script
+        if(tableAss.getSelectedRow() != -1){
+            Object o = assModel.getValueAt(tableAss.getSelectedRow(), 3);
+            if(o instanceof Sentence s){
+                tpFrom.setText(s.getText());
+            }
+        }
+    }//GEN-LAST:event_btnGetStActionPerformed
+
+    private void btnSetStActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnSetStActionPerformed
+        // Replace text to script
+        if(tableAss.getSelectedRow() != -1){
+            Sentence s = new Sentence(tpTo.getText(), tpFrom.getText());
+            assModel.setValueAt(s, tableAss.getSelectedRow(), 3);
+            tableAss.updateUI();
+        }
+    }//GEN-LAST:event_btnSetStActionPerformed
+
+    private void btnTranslateActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnTranslateActionPerformed
+        // Auto translate
+        try{
+            Translator.setUrlApi(URL);
+            Language lngFrom = (Language)cbFrom.getSelectedItem();
+            Language lngTo = (Language)cbTo.getSelectedItem();
+            
+            for(int i=0; i<assModel.getAss().getEvents().size(); i++){            
+                String source = ((Sentence)assModel.getValueAt(i, 3)).getText();
+                tpFrom.setText(source);
+                
+                String result = Translator.translate(lngFrom, lngTo, source);
+                
+                tpTo.setText(result);                
+                Sentence s = new Sentence(result, source);
+                assModel.setValueAt(s, i, 3);
+                tableAss.updateUI();
+            }
+        }catch(Exception exc){
+            
+        }        
+    }//GEN-LAST:event_btnTranslateActionPerformed
+
     /**
      * @param args the command line arguments
      */
@@ -348,31 +405,31 @@ public class MainFrame extends javax.swing.JFrame {
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JButton btnGetSt;
+    private javax.swing.JButton btnSetSt;
+    private javax.swing.JButton btnTranslate;
     private javax.swing.JComboBox<String> cbFrom;
     private javax.swing.JComboBox<String> cbTo;
     private javax.swing.JFileChooser fcOpen;
     private javax.swing.JFileChooser fcSave;
-    private javax.swing.JButton jButton1;
-    private javax.swing.JButton jButton2;
-    private javax.swing.JButton jButton3;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JMenuBar jMenuBar1;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel2;
     private javax.swing.JPanel jPanel3;
+    private javax.swing.JProgressBar jProgressBar1;
     private javax.swing.JScrollPane jScrollPane2;
     private javax.swing.JScrollPane jScrollPane3;
     private javax.swing.JScrollPane jScrollPane4;
     private javax.swing.JTabbedPane jTabbedPane1;
-    private javax.swing.JTextField jTextField1;
-    private javax.swing.JTextPane jTextPane1;
-    private javax.swing.JTextPane jTextPane2;
     private javax.swing.JMenu mnuFile;
     private javax.swing.JMenuItem mnuFileOpen;
     private javax.swing.JMenuItem mnuFileSave;
     private javax.swing.JMenuItem mnuFileSaveAs;
     private javax.swing.JPanel panTranslate;
     private javax.swing.JTable tableAss;
+    private javax.swing.JTextPane tpFrom;
+    private javax.swing.JTextPane tpTo;
     // End of variables declaration//GEN-END:variables
 }

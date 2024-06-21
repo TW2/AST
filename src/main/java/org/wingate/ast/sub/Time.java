@@ -133,7 +133,13 @@ public class Time {
         int sec = (int)((ms - 3600000 * hour - 60000 * min) / 1000);
         int cs = (int)(ms - 3600000 * hour - 60000 * min - 1000 * sec) / 10;
         
-        return String.format("%d:%d:%d.%d", hour, min, sec, cs);
+        return String.format(
+                "%s:%s:%s.%s",
+                hour,
+                min < 10 ? "0" + min : min,
+                sec < 10 ? "0" + sec : sec,
+                cs < 10 ? "0" + cs : cs
+        );
     }    
     
     public String getStartString(){
