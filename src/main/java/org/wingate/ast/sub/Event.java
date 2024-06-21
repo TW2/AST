@@ -16,6 +16,8 @@
  */
 package org.wingate.ast.sub;
 
+import java.util.List;
+
 /**
  *
  * @author util2
@@ -81,6 +83,27 @@ public class Event {
         name = "";
         effect = "";
         text = new Sentence();
+    }
+    
+    public Event(String raw, List<Style> styles) {
+        String[] t = raw.split(",", 10);
+        type = Type.get(raw.substring(0, raw.indexOf(":")));
+        layer = Integer.parseInt(t[0].substring(t[0].indexOf(" ") + 1, t[0].length()));        
+        time = new Time(t[1], t[2]);
+        for(Style sty : styles){
+            if(sty.getName().equals(t[3])){
+                style = sty;
+                break;
+            }
+        }
+        name = t[4];
+        marginL = Integer.parseInt(t[5]);
+        marginR = Integer.parseInt(t[6]);
+        marginV = Integer.parseInt(t[7]);
+        marginT = marginV / 2;
+        marginB = marginV / 2;
+        effect = t[8];
+        text = new Sentence(t[9]);
     }
 
     public Type getType() {

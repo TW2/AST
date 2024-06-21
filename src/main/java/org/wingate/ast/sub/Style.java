@@ -54,6 +54,7 @@ public class Style {
     private float alphaLevel;
     private int encoding;
     private float relativeTo;
+    private final Map<TextAttribute, Object> attributes = new HashMap<>();
 
     public Style() {
         name = "Default";
@@ -74,6 +75,29 @@ public class Style {
         encoding = 1;
         relativeTo = 0f;
     }
+    
+    @SuppressWarnings("OverridableMethodCallInConstructor")
+    public Style(String raw) {
+        String[] t = raw.split(",");
+        name = t[0].substring("Style: ".length());
+        font = new Font(t[1], Font.PLAIN, Integer.parseInt(t[2]));
+        textColor = Helper.getFromABGR(t[3]);
+        karaokeColor = Helper.getFromABGR(t[4]);
+        outlineColor = Helper.getFromABGR(t[5]);
+        shadowColor = Helper.getFromABGR(t[6]);
+        setFont(t[1], Integer.parseInt(t[2]), t[7].equals("-1"), t[8].equals("-1"), t[9].equals("-1"), t[10].equals("-1"));
+        scaleX = Float.parseFloat(t[11]) / 100f; scaleY = Float.parseFloat(t[12]) / 100f; scaleZ = 1f;
+        spacing = Integer.parseInt(t[13]);
+        angleX = Float.parseFloat(t[14]); angleY = 0f; angleZ = 0f;
+        borderStyle = Integer.parseInt(t[15]); // 1 or 3
+        outline = Float.parseFloat(t[16]); shadow = Float.parseFloat(t[17]);
+        alignment = Integer.parseInt(t[18]); // 1 to 9
+        marginL = Integer.parseInt(t[19]); marginR = Integer.parseInt(t[20]); marginV = Integer.parseInt(t[21]);
+        marginT = 10; marginB = 10;
+        alphaLevel = 0;
+        encoding = Integer.parseInt(t[22]);
+        relativeTo = 0f;
+    }
 
     public String getName() {
         return name;
@@ -92,7 +116,6 @@ public class Style {
     }
     
     public void setFont(String name, float size, boolean bold, boolean italic, boolean underline, boolean strikeout){
-        final Map<TextAttribute, Object> attributes = new HashMap<>();
         attributes.put(TextAttribute.FAMILY, name);
         attributes.put(TextAttribute.SIZE, size);
         attributes.put(TextAttribute.WEIGHT, bold ? TextAttribute.WEIGHT_BOLD : TextAttribute.WEIGHT_REGULAR);
@@ -101,6 +124,54 @@ public class Style {
         attributes.put(TextAttribute.STRIKETHROUGH, strikeout);
         Font f = new Font(attributes);
         this.font = f;
+    }
+    
+    public boolean isBold(){
+        boolean v = false;
+        for(Map.Entry<TextAttribute, Object> entry : attributes.entrySet()){
+            if(entry.getKey() == TextAttribute.WEIGHT){
+                if(entry.getValue() == TextAttribute.WEIGHT_BOLD){                        
+                    v = true;
+                }
+            }
+        }
+        return v;
+    }
+    
+    public boolean isItalic(){
+        boolean v = false;
+        for(Map.Entry<TextAttribute, Object> entry : attributes.entrySet()){
+            if(entry.getKey() == TextAttribute.POSTURE){
+                if(entry.getValue() == TextAttribute.POSTURE_OBLIQUE){                        
+                    v = true;
+                }
+            }
+        }
+        return v;
+    }
+    
+    public boolean isUnderline(){
+        boolean v = false;
+        for(Map.Entry<TextAttribute, Object> entry : attributes.entrySet()){
+            if(entry.getKey() == TextAttribute.UNDERLINE){
+                if(entry.getValue() instanceof Integer i){
+                    if(i==0) v = true;
+                }
+            }
+        }
+        return v;
+    }
+    
+    public boolean isStrikeOut(){
+        boolean v = false;
+        for(Map.Entry<TextAttribute, Object> entry : attributes.entrySet()){
+            if(entry.getKey() == TextAttribute.STRIKETHROUGH){
+                if(entry.getValue() instanceof Boolean b){                        
+                    v = b;
+                }
+            }
+        }
+        return v;
     }
 
     public Color getTextColor() {

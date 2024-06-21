@@ -16,6 +16,9 @@
  */
 package org.wingate.ast.sub;
 
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 /**
  *
  * @author util2
@@ -31,6 +34,11 @@ public class Time {
     public Time(long msStart, long msStop) {
         this.msStart = msStart;
         this.msStop = msStop;
+    }
+
+    public Time(String start, String stop) {        
+        this.msStart = parseASS(start);
+        this.msStop = parseASS(stop);
     }
 
     public long getMsStart() {
@@ -103,4 +111,37 @@ public class Time {
         }
         return s;
     }
+    
+    private long parseASS(String t){
+        Pattern p = Pattern.compile("(\\d+):(\\d{2}):(\\d{2}).{1}(\\d{2})");
+        Matcher m = p.matcher(t);
+        
+        if(m.find()){
+            int hs = Integer.parseInt(m.group(1));
+            int ms = Integer.parseInt(m.group(2));
+            int ss = Integer.parseInt(m.group(3));
+            int cs = Integer.parseInt(m.group(4)) * 10;
+            
+            return cs + ss * 1_000L + ms * 60 * 1_000L + hs * 60L * 60L * 1000L;
+        }
+        return 0L;
+    }
+    
+    public String getTimeString(long ms){
+        int hour = (int)(ms / 3600000);
+        int min = (int)((ms - 3600000 * hour) / 60000);
+        int sec = (int)((ms - 3600000 * hour - 60000 * min) / 1000);
+        int cs = (int)(ms - 3600000 * hour - 60000 * min - 1000 * sec) / 10;
+        
+        return String.format("%d:%d:%d.%d", hour, min, sec, cs);
+    }
+    
+    
+    public String getStartString(){
+        return getTimeString(msStart);
+    }
+    
+    public String getEndString(){
+        return getTimeString(msStop);
+   }
 }
