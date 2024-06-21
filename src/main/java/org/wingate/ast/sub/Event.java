@@ -62,10 +62,121 @@ public class Event {
     private int marginV;
     private int marginT;
     private int marginB;
-    private Time start;
-    private Time stop;
+    private Time time;
     private Style style;
     private String name;
-    //private Effects effect;
+    private String effect;
     private Sentence text;
+
+    public Event() {
+        type = Type.Dialogue;
+        layer = 0;
+        marginL = 10;
+        marginR = 10;
+        marginV = 10;
+        marginT = 10;
+        marginB = 10;
+        time = new Time();
+        style = new Style();
+        name = "";
+        effect = "";
+        text = new Sentence();
+    }
+
+    public Type getType() {
+        return type;
+    }
+
+    public void setType(Type type) {
+        this.type = type;
+    }
+
+    public int getLayer() {
+        return layer;
+    }
+
+    public void setLayer(int layer) {
+        this.layer = layer;
+    }
+
+    public int getMarginL() {
+        return marginL;
+    }
+
+    public void setMarginL(int marginL) {
+        this.marginL = marginL;
+    }
+
+    public int getMarginR() {
+        return marginR;
+    }
+
+    public void setMarginR(int marginR) {
+        this.marginR = marginR;
+    }
+
+    public int getMarginV() {
+        return marginV;
+    }
+
+    public void setMarginV(int marginV) {
+        this.marginV = marginV;
+    }
+
+    public int getMarginT() {
+        return marginT;
+    }
+
+    public void setMarginT(int marginT) {
+        this.marginT = marginT;
+    }
+
+    public int getMarginB() {
+        return marginB;
+    }
+
+    public void setMarginB(int marginB) {
+        this.marginB = marginB;
+    }
+
+    public Time getTime() {
+        return time;
+    }
+
+    public void setTime(Time time) {
+        this.time = time;
+    }
+
+    public Style getStyle() {
+        return style;
+    }
+
+    public void setStyle(Style style) {
+        this.style = style;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public String getEffect() {
+        return effect;
+    }
+
+    public void setEffect(String effect) {
+        this.effect = effect;
+    }
+
+    public Sentence getText() {
+        return text;
+    }
+
+    public void setText(Sentence text) {
+        this.text = text;
+    }
+    
 }
