@@ -16,13 +16,16 @@
  */
 package org.wingate.ast;
 
-import java.util.Iterator;
+import java.io.File;
 import java.util.Locale;
 import javax.swing.DefaultComboBoxModel;
-import javax.swing.table.DefaultTableColumnModel;
+import javax.swing.JFileChooser;
+import javax.swing.JOptionPane;
 import javax.swing.table.TableColumn;
 import net.suuft.libretranslate.Language;
+import org.wingate.ast.sub.ASS;
 import org.wingate.ast.sub.Sentence;
+import org.wingate.ast.util.AssFileFilter;
 import org.wingate.ast.util.AssTableModel;
 import org.wingate.ast.util.AssTableRenderer;
 
@@ -32,7 +35,8 @@ import org.wingate.ast.util.AssTableRenderer;
  */
 public class MainFrame extends javax.swing.JFrame {
     
-    private static final int assMaxTableSize = 1000;
+    private static final int ASS_MAX_TABLE_SIZE = 1000;
+    private File selectedFile = null;
 
     private final DefaultComboBoxModel modelFrom;
     private final DefaultComboBoxModel modelTo;
@@ -85,7 +89,7 @@ public class MainFrame extends javax.swing.JFrame {
     }
     
     private void resetColumnsWidth(){
-        int max = assMaxTableSize, size;
+        int max = ASS_MAX_TABLE_SIZE, size;
         TableColumn col;
         for(int i=0; i<tableAss.getColumnCount(); i++){
             switch(i){
@@ -132,10 +136,10 @@ public class MainFrame extends javax.swing.JFrame {
         jTextField1 = new javax.swing.JTextField();
         jButton3 = new javax.swing.JButton();
         jMenuBar1 = new javax.swing.JMenuBar();
-        jMenu1 = new javax.swing.JMenu();
-        jMenuItem1 = new javax.swing.JMenuItem();
-        jMenuItem2 = new javax.swing.JMenuItem();
-        jMenuItem3 = new javax.swing.JMenuItem();
+        mnuFile = new javax.swing.JMenu();
+        mnuFileOpen = new javax.swing.JMenuItem();
+        mnuFileSaveAs = new javax.swing.JMenuItem();
+        mnuFileSave = new javax.swing.JMenuItem();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
@@ -221,23 +225,92 @@ public class MainFrame extends javax.swing.JFrame {
 
         getContentPane().add(jTabbedPane1, java.awt.BorderLayout.CENTER);
 
-        jMenu1.setText("File");
+        mnuFile.setText("File");
 
-        jMenuItem1.setText("Open subtitles...");
-        jMenu1.add(jMenuItem1);
+        mnuFileOpen.setText("Open subtitles...");
+        mnuFileOpen.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                mnuFileOpenActionPerformed(evt);
+            }
+        });
+        mnuFile.add(mnuFileOpen);
 
-        jMenuItem2.setText("Save subtitles as...");
-        jMenu1.add(jMenuItem2);
+        mnuFileSaveAs.setText("Save subtitles as...");
+        mnuFileSaveAs.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                mnuFileSaveAsActionPerformed(evt);
+            }
+        });
+        mnuFile.add(mnuFileSaveAs);
 
-        jMenuItem3.setText("Save subtitles");
-        jMenu1.add(jMenuItem3);
+        mnuFileSave.setText("Save subtitles");
+        mnuFileSave.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                mnuFileSaveActionPerformed(evt);
+            }
+        });
+        mnuFile.add(mnuFileSave);
 
-        jMenuBar1.add(jMenu1);
+        jMenuBar1.add(mnuFile);
 
         setJMenuBar(jMenuBar1);
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
+
+    private void mnuFileOpenActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_mnuFileOpenActionPerformed
+        // Open subtitles
+        fcOpen.setAcceptAllFileFilterUsed(false);
+        fcOpen.setFileFilter(new AssFileFilter());
+        int z = fcOpen.showOpenDialog(this);
+        if(z == JFileChooser.APPROVE_OPTION){
+            ASS ass = new ASS();
+            ass.read(fcOpen.getSelectedFile().getPath());
+            assModel.setAss(ass);
+            tableAss.updateUI();
+        }
+    }//GEN-LAST:event_mnuFileOpenActionPerformed
+
+    private void mnuFileSaveAsActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_mnuFileSaveAsActionPerformed
+        // Save subtitles as
+        if(selectedFile == null){
+            fcSave.setAcceptAllFileFilterUsed(false);
+            fcSave.setFileFilter(new AssFileFilter());
+            int z = fcSave.showSaveDialog(this);
+            if(z == JFileChooser.APPROVE_OPTION){
+                selectedFile = fcSave.getSelectedFile();
+                ASS ass = assModel.getAss();
+                ass.write(selectedFile.getPath());
+            }
+        }else{
+            int z = JOptionPane.showConfirmDialog(
+                    this,
+                    "This filename already exists,\nwould you replace it?",
+                    "Issue",
+                    JOptionPane.YES_NO_OPTION,
+                    JOptionPane.QUESTION_MESSAGE
+            );
+            if(z == JOptionPane.YES_OPTION){
+                ASS ass = assModel.getAss();
+                ass.write(selectedFile.getPath());
+            }else{
+                fcSave.setAcceptAllFileFilterUsed(false);
+                fcSave.setFileFilter(new AssFileFilter());
+                int zb = fcSave.showSaveDialog(this);
+                if(zb == JFileChooser.APPROVE_OPTION){
+                    selectedFile = fcSave.getSelectedFile();
+                    ASS ass = assModel.getAss();
+                    ass.write(selectedFile.getPath());
+                }
+            }            
+        }
+    }//GEN-LAST:event_mnuFileSaveAsActionPerformed
+
+    private void mnuFileSaveActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_mnuFileSaveActionPerformed
+        // Save subtitles with known file
+        ASS ass = assModel.getAss();
+        ass.write(selectedFile.getPath());
+    }//GEN-LAST:event_mnuFileSaveActionPerformed
 
     /**
      * @param args the command line arguments
@@ -284,11 +357,7 @@ public class MainFrame extends javax.swing.JFrame {
     private javax.swing.JButton jButton3;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
-    private javax.swing.JMenu jMenu1;
     private javax.swing.JMenuBar jMenuBar1;
-    private javax.swing.JMenuItem jMenuItem1;
-    private javax.swing.JMenuItem jMenuItem2;
-    private javax.swing.JMenuItem jMenuItem3;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel2;
     private javax.swing.JPanel jPanel3;
@@ -299,6 +368,10 @@ public class MainFrame extends javax.swing.JFrame {
     private javax.swing.JTextField jTextField1;
     private javax.swing.JTextPane jTextPane1;
     private javax.swing.JTextPane jTextPane2;
+    private javax.swing.JMenu mnuFile;
+    private javax.swing.JMenuItem mnuFileOpen;
+    private javax.swing.JMenuItem mnuFileSave;
+    private javax.swing.JMenuItem mnuFileSaveAs;
     private javax.swing.JPanel panTranslate;
     private javax.swing.JTable tableAss;
     // End of variables declaration//GEN-END:variables
