@@ -10,8 +10,17 @@ AST requires the LibreTranslate's python engine to work. First install it locall
 5/ Due to a numpy 2 error do ```pip install numpy==1.26.4``` command.<br>
 6/ Deactivate your virtual environment.
 ### Installation of ASS Subtitles Translate with Git and Maven
-1/ Install Git.<br>
-2/ Install Maven and create a PATH access.<br>
-3/ Clone this repository with a git command.<br>
-4/ Type the maven package command to install this project into your system.
+1/ Install Java 22.<br>
+2/ Install Git.<br>
+3/ Install Maven and create a PATH access.<br>
+4/ Clone this repository with a git command.<br>
+5/ Type the maven package command to install this project into your system.
 ### Usage of AST with LibreTanslate
+1/ Activate your virtual environment.<br>
+2/ Type ```libretanslate``` command to start the local service.<br>
+3/ Open AST and open an ASS script on it.<br>
+4/ Configure the 'From' language and the 'To' language.<br>
+5/ Click on Auto translate and wait.<br>
+6/ Once done, you can do anything else, save your work and close AST.<br>
+7/ On your Terminal, type CTRL+C to stop the service properly.<br>
+8/ Deactivate your virtual environment.
