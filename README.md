@@ -17,7 +17,7 @@ AST requires the LibreTranslate's python engine to work. First install it locall
 5/ Type the maven package command to install this project into your system.
 ### Usage of AST with LibreTanslate
 1/ Activate your virtual environment.<br>
-2/ Type ```libretanslate``` command to start the local service.<br>
+2/ Type ```libretranslate``` command to start the local service.<br>
 3/ Open AST and open an ASS script on it.<br>
 4/ Configure the 'From' language and the 'To' language.<br>
 5/ Click on Auto translate and wait.<br>
