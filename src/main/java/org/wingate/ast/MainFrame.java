@@ -16,6 +16,8 @@
  */
 package org.wingate.ast;
 
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
 import java.io.File;
 import java.util.Locale;
 import javax.swing.DefaultComboBoxModel;
@@ -34,7 +36,10 @@ import org.wingate.ast.util.AssTableRenderer;
  *
  * @author util2
  */
-public class MainFrame extends javax.swing.JFrame {
+public class MainFrame extends javax.swing.JFrame implements Runnable {
+    
+    private volatile boolean active = false;
+    private Thread threadTranslate = null;
     
     private static final String URL = "http://127.0.0.1:5000/translate";
     private static final int ASS_MAX_TABLE_SIZE = 1000;
@@ -74,6 +79,16 @@ public class MainFrame extends javax.swing.JFrame {
         
         resetColumnsWidth();
         tableAss.updateUI();
+        
+        addKeyListener(new KeyAdapter(){
+            @Override
+            public void keyReleased(KeyEvent e) {
+                super.keyReleased(e);
+                if(active == true && e.getKeyCode() == KeyEvent.VK_SPACE){
+                    stopTranslation();
+                }
+            }
+        });
     }
     
     private Language getSystemLanguage(){
@@ -104,7 +119,31 @@ public class MainFrame extends javax.swing.JFrame {
             col.setPreferredWidth(size);
             max -= size;
         }
-        
+    }
+    
+    private String clearArtifacts(String s){
+        String str = s;
+        str = str.replaceAll("\\{[^\\}]+\\}", "");
+        str = str.replace("\\N", "");
+        str = str.replace("\\n", "");
+        str = str.replace("\\t", "");
+        return str;
+    }
+    
+    private void startTranslation(){
+        stopTranslation();
+        active = true;
+        threadTranslate = new Thread(this);
+        threadTranslate.start();
+    }
+    
+    private void stopTranslation(){
+        if(threadTranslate != null && (threadTranslate.isAlive() || !threadTranslate.isInterrupted())){
+            active = false;
+            threadTranslate.interrupt();
+            threadTranslate = null;
+            pbTranslate.setValue(0);
+        }
     }
 
     /**
@@ -136,7 +175,7 @@ public class MainFrame extends javax.swing.JFrame {
         btnGetSt = new javax.swing.JButton();
         btnSetSt = new javax.swing.JButton();
         btnTranslate = new javax.swing.JButton();
-        jProgressBar1 = new javax.swing.JProgressBar();
+        pbTranslate = new javax.swing.JProgressBar();
         jMenuBar1 = new javax.swing.JMenuBar();
         mnuFile = new javax.swing.JMenu();
         mnuFileOpen = new javax.swing.JMenuItem();
@@ -218,7 +257,7 @@ public class MainFrame extends javax.swing.JFrame {
             .addComponent(jPanel3, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
             .addComponent(jScrollPane2, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, 822, Short.MAX_VALUE)
             .addComponent(btnTranslate, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-            .addComponent(jProgressBar1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+            .addComponent(pbTranslate, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
         );
         panTranslateLayout.setVerticalGroup(
             panTranslateLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -231,7 +270,7 @@ public class MainFrame extends javax.swing.JFrame {
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(btnTranslate)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jProgressBar1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addComponent(pbTranslate, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 344, Short.MAX_VALUE))
         );
@@ -348,25 +387,7 @@ public class MainFrame extends javax.swing.JFrame {
 
     private void btnTranslateActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnTranslateActionPerformed
         // Auto translate
-        try{
-            Translator.setUrlApi(URL);
-            Language lngFrom = (Language)cbFrom.getSelectedItem();
-            Language lngTo = (Language)cbTo.getSelectedItem();
-            
-            for(int i=0; i<assModel.getAss().getEvents().size(); i++){            
-                String source = ((Sentence)assModel.getValueAt(i, 3)).getText();
-                tpFrom.setText(source);
-                
-                String result = Translator.translate(lngFrom, lngTo, source);
-                
-                tpTo.setText(result);                
-                Sentence s = new Sentence(result, source);
-                assModel.setValueAt(s, i, 3);
-                tableAss.updateUI();
-            }
-        }catch(Exception exc){
-            
-        }        
+        startTranslation();
     }//GEN-LAST:event_btnTranslateActionPerformed
 
     /**
@@ -418,7 +439,6 @@ public class MainFrame extends javax.swing.JFrame {
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel2;
     private javax.swing.JPanel jPanel3;
-    private javax.swing.JProgressBar jProgressBar1;
     private javax.swing.JScrollPane jScrollPane2;
     private javax.swing.JScrollPane jScrollPane3;
     private javax.swing.JScrollPane jScrollPane4;
@@ -428,8 +448,51 @@ public class MainFrame extends javax.swing.JFrame {
     private javax.swing.JMenuItem mnuFileSave;
     private javax.swing.JMenuItem mnuFileSaveAs;
     private javax.swing.JPanel panTranslate;
+    private javax.swing.JProgressBar pbTranslate;
     private javax.swing.JTable tableAss;
     private javax.swing.JTextPane tpFrom;
     private javax.swing.JTextPane tpTo;
     // End of variables declaration//GEN-END:variables
+
+    @SuppressWarnings("CallToPrintStackTrace")
+    private void doInRun(){
+        try{
+            Translator.setUrlApi(URL);
+            Language lngFrom = (Language)cbFrom.getSelectedItem();
+            Language lngTo = (Language)cbTo.getSelectedItem();
+            
+            int eventsSize = assModel.getAss().getEvents().size();
+            
+            pbTranslate.setMinimum(0);
+            pbTranslate.setMaximum(eventsSize);
+            pbTranslate.setValue(0);
+            
+            for(int i=0; i<eventsSize; i++){            
+                String source = clearArtifacts(((Sentence)assModel.getValueAt(i, 3)).getText());
+                if(source.isEmpty()) continue;
+                tpFrom.setText(source);
+                
+                String result = Translator.translate(lngFrom, lngTo, source);
+                
+                tpTo.setText(result);                
+                Sentence s = new Sentence(result, source);
+                assModel.setValueAt(s, i, 3);
+                tableAss.updateUI();
+                
+                pbTranslate.setValue(i+1);
+            }
+        }catch(Exception exc){
+            exc.printStackTrace();
+        }finally{
+            stopTranslation();
+        }
+    }
+    
+    @Override    
+    public void run() {
+        if(active == true){
+            doInRun();
+        }
+    }
+    
 }

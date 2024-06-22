@@ -91,7 +91,7 @@
                   <Component id="jPanel3" alignment="0" max="32767" attributes="0"/>
                   <Component id="jScrollPane2" alignment="1" pref="822" max="32767" attributes="0"/>
                   <Component id="btnTranslate" alignment="0" max="32767" attributes="0"/>
-                  <Component id="jProgressBar1" alignment="0" max="32767" attributes="0"/>
+                  <Component id="pbTranslate" alignment="0" max="32767" attributes="0"/>
               </Group>
             </DimensionLayout>
             <DimensionLayout dim="1">
@@ -105,7 +105,7 @@
                       <EmptySpace max="-2" attributes="0"/>
                       <Component id="btnTranslate" min="-2" max="-2" attributes="0"/>
                       <EmptySpace max="-2" attributes="0"/>
-                      <Component id="jProgressBar1" min="-2" max="-2" attributes="0"/>
+                      <Component id="pbTranslate" min="-2" max="-2" attributes="0"/>
                       <EmptySpace max="-2" attributes="0"/>
                       <Component id="jScrollPane2" pref="344" max="32767" attributes="0"/>
                   </Group>
@@ -255,7 +255,7 @@
                 <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="btnTranslateActionPerformed"/>
               </Events>
             </Component>
-            <Component class="javax.swing.JProgressBar" name="jProgressBar1">
+            <Component class="javax.swing.JProgressBar" name="pbTranslate">
             </Component>
           </SubComponents>
         </Container>
