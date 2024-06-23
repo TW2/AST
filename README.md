@@ -1,7 +1,8 @@
 # AST :: ASS Subtitles Translate
 Translate with LibreTranslate engine
 
-AST requires the LibreTranslate's python engine to work. First install it locally.
+![AST 001 screenshot](https://github.com/TW2/AST/blob/master/src/screenshots/AST_001.png)
+
 ### Installation of LibreTranslate
 1/ Install a working distribution of Python 3 in your computer. (Tested with Python 3.11.0)<br>
 2/ Create a virtual environment somewhere in your system.<br>
@@ -15,7 +16,7 @@ AST requires the LibreTranslate's python engine to work. First install it locall
 3/ Install Maven and create a PATH access.<br>
 4/ Clone this repository with a git command.<br>
 5/ Type the maven package command to install this project into your system.
-### Usage of AST with LibreTanslate
+### Usage of AST with LibreTranslate
 1/ Activate your virtual environment.<br>
 2/ Type ```libretranslate``` command to start the local service.<br>
 3/ Open AST and open an ASS script on it.<br>
