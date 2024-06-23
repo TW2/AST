@@ -27,10 +27,11 @@ import javax.swing.table.TableColumn;
 import net.suuft.libretranslate.Language;
 import net.suuft.libretranslate.Translator;
 import org.wingate.ast.sub.ASS;
+import org.wingate.ast.sub.SRT;
 import org.wingate.ast.sub.Sentence;
-import org.wingate.ast.util.AssFileFilter;
 import org.wingate.ast.util.AssTableModel;
 import org.wingate.ast.util.AssTableRenderer;
+import org.wingate.ast.util.GenericFileFilter;
 
 /**
  *
@@ -79,6 +80,14 @@ public class MainFrame extends javax.swing.JFrame implements Runnable {
         
         resetColumnsWidth();
         tableAss.updateUI();
+        
+        fcOpen.setAcceptAllFileFilterUsed(false);
+        fcOpen.addChoosableFileFilter(new GenericFileFilter("ass", "Advanced SubStation files"));
+        fcOpen.addChoosableFileFilter(new GenericFileFilter("srt", "SubRip Text files"));
+        
+        fcSave.setAcceptAllFileFilterUsed(false);
+        fcSave.addChoosableFileFilter(new GenericFileFilter("ass", "Advanced SubStation files"));
+        fcSave.addChoosableFileFilter(new GenericFileFilter("srt", "SubRip Text files"));
         
         addKeyListener(new KeyAdapter(){
             @Override
@@ -143,6 +152,54 @@ public class MainFrame extends javax.swing.JFrame implements Runnable {
             threadTranslate.interrupt();
             threadTranslate = null;
             pbTranslate.setValue(0);
+        }
+    }
+    
+    private void open(String path){
+        switch(path.substring(path.lastIndexOf(".") + 1).toLowerCase()){
+            case "ass" -> {
+                ASS ass = new ASS();
+                ass.read(path);
+                assModel.setAss(ass);
+            }
+            case "srt" -> {
+                SRT srt = new SRT();
+                srt.read(path);
+                // Styles
+                assModel.getAss().getStyles().clear();
+                assModel.getAss().getStyles().addAll(srt.getStyles());
+                // Events
+                assModel.getAss().getEvents().clear();
+                assModel.getAss().getEvents().addAll(srt.getEvents());
+            }
+        }
+    }    
+    
+    private void save(String path){        
+        switch(path.substring(path.lastIndexOf(".") + 1).toLowerCase()){
+            case "ass" -> {
+                ASS ass = assModel.getAss();
+                ass.write(selectedFile.getPath());
+            }
+            case "srt" -> {
+                SRT srt = new SRT();
+                // Styles
+                srt.getStyles().clear();
+                srt.getStyles().addAll(assModel.getAss().getStyles());
+                // Events
+                srt.getEvents().clear();
+                srt.getEvents().addAll(assModel.getAss().getEvents());
+                srt.write(path);
+            }
+            default -> {
+                // Si on arrive ici c'est que l'on a pas trouvé d'extension
+                // On va rappeler la fonction après une sélection suivant
+                // le filefilter sélectionné. Et ajouter l'extension avant.
+                if(fcSave.getFileFilter() instanceof GenericFileFilter filter){
+                    selectedFile = new File(selectedFile.getPath() + filter.getExtension());
+                    save(selectedFile.getPath());
+                }
+            }
         }
     }
 
@@ -314,47 +371,31 @@ public class MainFrame extends javax.swing.JFrame implements Runnable {
 
     private void mnuFileOpenActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_mnuFileOpenActionPerformed
         // Open subtitles
-        fcOpen.setAcceptAllFileFilterUsed(false);
-        fcOpen.setFileFilter(new AssFileFilter());
         int z = fcOpen.showOpenDialog(this);
         if(z == JFileChooser.APPROVE_OPTION){
-            ASS ass = new ASS();
-            ass.read(fcOpen.getSelectedFile().getPath());
-            assModel.setAss(ass);
+            open(fcOpen.getSelectedFile().getPath());
             tableAss.updateUI();
         }
     }//GEN-LAST:event_mnuFileOpenActionPerformed
 
     private void mnuFileSaveAsActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_mnuFileSaveAsActionPerformed
         // Save subtitles as
-        if(selectedFile == null){
-            fcSave.setAcceptAllFileFilterUsed(false);
-            fcSave.setFileFilter(new AssFileFilter());
+        if(selectedFile == null){            
             int z = fcSave.showSaveDialog(this);
             if(z == JFileChooser.APPROVE_OPTION){
                 selectedFile = fcSave.getSelectedFile();
-                ASS ass = assModel.getAss();
-                ass.write(selectedFile.getPath());
+                save(selectedFile.getPath());
             }
         }else{
-            int z = JOptionPane.showConfirmDialog(
-                    this,
-                    "This filename already exists,\nwould you replace it?",
-                    "Issue",
-                    JOptionPane.YES_NO_OPTION,
-                    JOptionPane.QUESTION_MESSAGE
-            );
+            int z = JOptionPane.showConfirmDialog(this, "This filename already exists,\nwould you replace it?",
+                    "Issue", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
             if(z == JOptionPane.YES_OPTION){
-                ASS ass = assModel.getAss();
-                ass.write(selectedFile.getPath());
+                save(selectedFile.getPath());
             }else{
-                fcSave.setAcceptAllFileFilterUsed(false);
-                fcSave.setFileFilter(new AssFileFilter());
                 int zb = fcSave.showSaveDialog(this);
                 if(zb == JFileChooser.APPROVE_OPTION){
                     selectedFile = fcSave.getSelectedFile();
-                    ASS ass = assModel.getAss();
-                    ass.write(selectedFile.getPath());
+                    save(selectedFile.getPath());
                 }
             }            
         }
@@ -362,8 +403,12 @@ public class MainFrame extends javax.swing.JFrame implements Runnable {
 
     private void mnuFileSaveActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_mnuFileSaveActionPerformed
         // Save subtitles with known file
-        ASS ass = assModel.getAss();
-        ass.write(selectedFile.getPath());
+        if(selectedFile == null){
+            JOptionPane.showMessageDialog(this, "Save cannot use unknown path,\nplease use 'Save as...' menu item !",
+                    "Error", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+        save(selectedFile.getPath());
     }//GEN-LAST:event_mnuFileSaveActionPerformed
 
     private void btnGetStActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnGetStActionPerformed

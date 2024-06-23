@@ -23,16 +23,28 @@ import javax.swing.filechooser.FileFilter;
  *
  * @author util2
  */
-public class AssFileFilter extends FileFilter {
+public class GenericFileFilter extends FileFilter {
+    
+    private final String extension;
+    private final String description;
+    
+    public GenericFileFilter(String extension, String description){
+        this.extension = extension.toLowerCase();
+        this.description = description;
+    }
 
     @Override
     public boolean accept(File f) {
-        return f.isDirectory() || f.getName().endsWith(".ass");
+        return f.isDirectory() || f.getName().toLowerCase().endsWith("." + extension);
     }
 
     @Override
     public String getDescription() {
-        return "ASS files";
+        return String.format("%s (*.%s)", description, extension);
+    }
+
+    public String getExtension() {
+        return "." + extension;
     }
     
 }
