@@ -96,6 +96,7 @@ public class Event {
                 break;
             }
         }
+        if(style == null) style = styles.get(0);
         name = t[4];
         marginL = Integer.parseInt(t[5]);
         marginR = Integer.parseInt(t[6]);
