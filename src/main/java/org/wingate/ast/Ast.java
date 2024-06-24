@@ -11,7 +11,7 @@ public class Ast {
     
     private static final String APP_NAME = "AST";
     private static final String APP_LONG_NAME = "ASS Subtitles Translate";
-    private static final String APP_VERSION = "0.1-SNAPSHOT";
+    private static final String APP_VERSION = "0.1.1";
 
     public static void main(String[] args) {
         EventQueue.invokeLater(() -> {
