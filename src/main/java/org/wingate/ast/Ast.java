@@ -18,7 +18,7 @@ public class Ast {
     
     private static final String APP_NAME = "AST";
     private static final String APP_LONG_NAME = "ASS Subtitles Translate";
-    private static final String APP_VERSION = "0.1.1";
+    private static final String APP_VERSION = "0.1.2";
     
     private static final String URL = "http://127.0.0.1:5000/translate";
 
