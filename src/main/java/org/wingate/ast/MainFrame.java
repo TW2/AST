@@ -24,7 +24,6 @@ import javax.swing.DefaultComboBoxModel;
 import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
 import javax.swing.table.TableColumn;
-import net.suuft.libretranslate.Language;
 import net.suuft.libretranslate.Translator;
 import org.wingate.ast.sub.ASS;
 import org.wingate.ast.sub.SRT;
@@ -32,6 +31,7 @@ import org.wingate.ast.sub.Sentence;
 import org.wingate.ast.util.AssTableModel;
 import org.wingate.ast.util.AssTableRenderer;
 import org.wingate.ast.util.GenericFileFilter;
+import org.wingate.ast.util.Language;
 
 /**
  *
@@ -105,7 +105,7 @@ public class MainFrame extends javax.swing.JFrame implements Runnable {
         
         Locale loc = Locale.getDefault();
         for(Language language : Language.values()){
-            if(language.getCode().equalsIgnoreCase(loc.getLanguage())){
+            if(language.getISO_639().equalsIgnoreCase(loc.getLanguage())){
                 lng = language;
                 break;
             }
@@ -517,7 +517,7 @@ public class MainFrame extends javax.swing.JFrame implements Runnable {
                 if(source.isEmpty()) continue;
                 tpFrom.setText(source);
                 
-                String result = Translator.translate(lngFrom, lngTo, source);
+                String result = Translator.translate(lngFrom.getISO_639(), lngTo.getISO_639(), source);
                 
                 tpTo.setText(result);                
                 Sentence s = new Sentence(result, source);
